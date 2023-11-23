@@ -32,3 +32,4 @@ then
     amass enum -passive -norecursive -d $1 -o $directory/amass.txt
     echo "The results of amass are stored in $directory/amass.txt"
 fi
+# 
