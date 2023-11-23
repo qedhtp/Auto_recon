@@ -12,24 +12,58 @@ mkdir $1_recon
 # echo "enter ./recon.sh tool_name to use"
 # Select which tool to run
 # echo "this is test"
-if [ $2 == "nmap-only" ]
-then
+nmap_scan()
+{
     # nmap scan
-    nmap $1 > $directory/nmap.txt
+    nmap $domain > $directory/nmap.txt
     echo "The results of nmap scan are stored in $directory/nmap.txt"
-elif [$2 == "dirsearch"]
-then
+}
+dirsearch_scan()
+{
     # dirsearch bruteforce
-    dirsearch.py -u $1 -o $directory/dirsearch.txt
+    dirsearch.py -u $domain -o $directory/dirsearch.txt
     echo "The results of dirsearch are stored in $directory/dirsearch.txt"
-elif [$2 == "sub"]
-then
+}
+sub_scan()
+{
     # subfinder
-    subfinder -d $1 -o $directory/subfinder.txt
-    echo "The results of subfinder are stored in $directory/subdinder.txt"
+    subfinder -d $domain -o $directory/subfinder.txt
+    echo "The results of subfinder are stored in $directory/subfinder.txt"
 
     # amass
-    amass enum -passive -norecursive -d $1 -o $directory/amass.txt
+    amass enum -passive -norecursive -d $domain -o $directory/amass.txt
     echo "The results of amass are stored in $directory/amass.txt"
-fi
-# 
+
+    # crt
+    curl "https://crt.sh/?q=$domain&output=json" | jq -r ".[] | .name_value" >> $directory/crt.txt
+    echo "The results of crt are stored in $directory/crt.txt"
+}     
+case $2 in
+    nmap_only)
+        nmap_scan
+        ;;
+    dirsearch_only)
+        dirsearch_scan
+        ;;
+    sub_only)
+        sub_scan
+        ;;
+    crt_only)
+        crt_scan
+        ;;
+    *)
+        nmap_scan
+        dirsearch_scan
+        sub_scan
+        crt_scan
+        ;; 
+esac
+echo "Generating recon report from output files..."
+echo "This scan was created on $today" > $directory/report.txt
+echo "Results for nmap:" >> $directory/report.txt
+grep -E "^\s*\S+\s+\S+\s+\s*$" $directory/nmap.txt >> $directory/report.txt
+echo "Results for Dirsearch:" >> $dirsearch/report.txt
+cat $directory/dirsearch.txt >> $directory/report.txt
+echo "Results for subdomain" >> $directory/report.txt
+cat $directory/sub_all.txt >> $directory/report.txt
+
