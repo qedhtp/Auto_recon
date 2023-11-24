@@ -1,3 +1,0 @@
-This scan was created on Thu 23 Nov 23:02:29 CST 2023
-Results for nmap:
-Results for subdomain
