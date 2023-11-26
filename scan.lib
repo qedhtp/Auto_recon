@@ -1,0 +1,30 @@
+#!/bin/bash
+nmap_scan()
+{
+    # nmap scan
+    nmap $domain > $directory/nmap.txt
+    echo "The results of nmap scan are stored in $directory/nmap.txt"
+}
+dirsearch_scan()
+{
+    # dirsearch bruteforce
+    dirsearch.py -u $domain -o $directory/dirsearch.txt
+    echo "The results of dirsearch are stored in $directory/dirsearch.txt"
+}
+sub_scan()
+{
+    # subfinder
+    subfinder -d $domain -o $directory/subfinder.txt
+    echo "The results of subfinder are stored in $directory/subfinder.txt"
+
+    # amass
+    amass enum -passive -norecursive -d $domain -o $directory/amass.txt
+    echo "The results of amass are stored in $directory/amass.txt"
+
+    # crt
+    curl "https://crt.sh/?q=$domain&output=json" | jq -r ".[] | .name_value" >> $directory/crt.txt
+    echo "The results of crt are stored in $directory/crt.txt"
+
+    # Merge and remove duplicate subdomains
+    sort -u $directory/subfinder.txt $directory/amass.txt $directory/crt.txt -o $directory/sub_all.txt
+} 
