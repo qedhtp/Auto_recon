@@ -33,7 +33,8 @@ sub_scan()
     printf "Fourth: merge and remove duplicate subdomains...\n\n"
     # httpx
     echo "Fifth: using httpx only save running http or https server..."
-    httpx -silent -l $directory/sub_all.txt > $directory/live-sub.txt -t 10 -rl 20
+    httpx -silent -l $directory/sub_all.txt > $directory/live-sub.txt -t 10 -rl 20 -cl -nc
 
     #merge common length
+    python3 merge_url.py | tee last_sub.txt
 } 
