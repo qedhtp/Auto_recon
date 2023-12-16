@@ -14,27 +14,29 @@ dirsearch_scan()
 sub_scan()
 {
     # subfinder
-    echo "First: subfiner enumeration..."
+    echo "step 1: subfiner enumeration..."
     subfinder -d $domain > $directory/subfinder.txt -silent
     printf "The results of subfinder are stored in $directory/subfinder.txt\n\n"
 
     # amass
-    echo "Second: amass enumeration..."
+    echo "step 2: amass enumeration..."
     amass enum -passive -norecursive -d $domain -o $directory/amass.txt -silent
     printf "The results of amass are stored in $directory/amass.txt\n\n"
 
     # crt
-    echo "Third: crt.sh enumeration..."
+    echo "step 3: crt.sh enumeration..."  #jq parse json  https://www.baeldung.com/linux/jq-command-json
     curl -s "https://crt.sh/?q=$domain&output=json" | jq -r ".[] | .name_value" > $directory/crt.txt
     printf "The results of crt are stored in $directory/crt.txt\n\n"
 
     # Merge and remove duplicate subdomains
     sort -u $directory/subfinder.txt $directory/amass.txt $directory/crt.txt -o $directory/sub_all.txt
-    printf "Fourth: merge and remove duplicate subdomains...\n\n"
+    printf "step 4: merge and remove duplicate subdomains...\n\n"
     # httpx
-    echo "Fifth: using httpx only save running http or https server..."
+    printf "step 5: using httpx only save running http or https server...\n\n"
     httpx -silent -l $directory/sub_all.txt > $directory/live-sub.txt -t 10 -rl 20 -cl -nc
 
     #merge common length
-    python3 merge_url.py | tee last_sub.txt
+    echo "merge common response length"
+    cat $directory/live-sub.txt | python3 merge_url.py -o $directory/ultimate_sub.txt
+    echo "ultimate subdomain is saved!"
 } 

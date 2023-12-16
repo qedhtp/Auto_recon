@@ -15,7 +15,10 @@
 source ./scan.lib
 getopts "m:" OPTION
 mode=$OPTARG
-for i in "${@:$OPTIND:$#}"
+# $OPTIND parses argument after first options
+# $# the number of command line arguments 
+# @ array  containing all input arguments
+for i in "${@:$OPTIND:$#}" # here, also $#-1  $#+1
 do 
     domain=$i
     directory=${domain}_recon
